@@ -1,8 +1,9 @@
 -- ================================================
--- 🌟 BatataHub Loader v3.3 | Autor: Lk
+-- 🌟 BatataHub Loader v3.4 | Autor: Lk
 -- 🔧 Auto Update + Checagem de WindUI + Versão automática
 -- ================================================
 
+-- Link RAW do script principal
 local mainScriptURL = "https://raw.githubusercontent.com/kaique9273/Batatahub/refs/heads/main/Batata%20Hub%20v1.lua"
 
 -- Função de notificação
@@ -18,12 +19,12 @@ local function console(msg)
     print("🔹 [BatataHub Loader] "..msg)
 end
 
-console("Iniciando BatataHub Loader v3.3...")
+console("Iniciando BatataHub Loader v3.4...")
 console("Baixando script mais recente...")
 
--- 1️⃣ Carrega WindUI
+-- 1️⃣ Carrega WindUI (link RAW direto)
 local windSuccess, WindUI = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/kaique9273/Batatahub/refs/heads/main/BatataHubv3.2", true))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/main.lua", true))()
 end)
 
 if not windSuccess or not WindUI then
@@ -63,5 +64,3 @@ else
     warn("❌ Falha ao baixar o script remoto!")
     notify("❌ BatataHub","Erro ao baixar script. Verifique sua conexão ou GitHub.",6)
 end
-
-
