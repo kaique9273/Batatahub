@@ -243,76 +243,51 @@ PlayerTab:Slider({
 })
 
 -- ================================================
--- 🫥 Aba Noclip (otimizada)
+-- 🫥 Aba Noclip com CollisionGroups
 -- ================================================
+local PhysicsService = game:GetService("PhysicsService")
+local player = game.Players.LocalPlayer
+
+-- Cria grupos se não existirem
+pcall(function() PhysicsService:CreateCollisionGroup("Players") end)
+pcall(function() PhysicsService:CreateCollisionGroup("Map") end) -- Certifique-se que seus objetos do mapa estão nesse grupo
+-- Configura a regra: Players não colide com Map
+PhysicsService:CollisionGroupSetCollidable("Players", "Map", false)
+
+-- Toggle Noclip
 local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
 TrollTab:Paragraph({Title = "Atravessar Paredes"})
 
-local RunService = game:GetService("RunService")
-local player = game.Players.LocalPlayer
-cfg = cfg or {}
+local cfg = cfg or {}
 cfg.noclip = false
 
--- Função para ativar/desativar noclip
 local function setNoclip(state)
     if not player.Character then return end
-    local char = player.Character
-
-    -- Alterar colisão de todas as partes
-    for _, part in ipairs(char:GetDescendants()) do
+    for _, part in ipairs(player.Character:GetDescendants()) do
         if part:IsA("BasePart") then
-            part.CanCollide = not state
+            -- Coloca todas as partes do personagem no grupo "Players" para ignorar o mapa
+            PhysicsService:SetPartCollisionGroup(part, state and "Players" or "Default")
         end
     end
-
-    -- Garantir que o HumanoidRootPart também não bloqueie
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CanCollide = not state
-    end
-
-    -- Ajusta o estado do humanoid para manter física correta
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid:ChangeState(state and Enum.HumanoidStateType.Physics or Enum.HumanoidStateType.GettingUp)
-    end
 end
 
--- Loop de manutenção do noclip apenas quando ativo
-local noclipConnection
-local function toggleHeartbeat(state)
-    if state and not noclipConnection then
-        noclipConnection = RunService.Heartbeat:Connect(function()
-            if cfg.noclip and player.Character then
-                setNoclip(true)
-            end
-        end)
-    elseif not state and noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-end
-
--- Toggle no painel
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
     Default = false,
     Callback = function(value)
         cfg.noclip = value
         setNoclip(value)
-        toggleHeartbeat(value)
         WindUI:Notify({
             Title = value and "Noclip Ativado" or "Noclip Desativado",
-            Content = value and "Você agora atravessa paredes!" or "Você voltou a colidir normalmente.",
+            Content = value and "Você agora atravessa paredes e objetos!" or "Colisão normal restaurada.",
             Duration = 3,
             Icon = "ghost"
         })
     end
 })
 
--- Aplica noclip automaticamente após respawn
-player.CharacterAdded:Connect(function(char)
-    char:WaitForChild("HumanoidRootPart")
+-- Aplica Noclip no respawn se estiver ativo
+player.CharacterAdded:Connect(function()
     if cfg.noclip then
         setNoclip(true)
     end
@@ -322,3 +297,4 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
