@@ -141,12 +141,14 @@ PlayerTab:Slider({
 -- 🫥 Aba Noclip
 -- ================================================
 local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
+
+TrollTab:Paragraph({Title = "Atravessar Paredes",})
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
     Default = false,
     Callback = function(value)
         cfg.noclip = value
-        print("[BatataHub] Noclip está:", value)
+        notiv
     end
 })
 
@@ -168,5 +170,6 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
 
 
