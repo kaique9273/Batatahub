@@ -6,7 +6,7 @@
 
 -- Carrega WindUI com segurança
 local success, WindUI = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/kaique9273/BatataHub/main/BatataHub.lua", true))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/main.lua", true))()
 end)
 
 if not success then
@@ -161,3 +161,4 @@ end)
 -- ================================================
 -- Exibe versão carregada no console
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
