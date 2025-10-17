@@ -1,33 +1,41 @@
---#version: 3.3
+--#version: 3.4
 -- ================================================
--- 🌟 BatataHub v3.3 | Autor: Lk (coringakaio)
+-- 🌟 BatataHub v3.4 | Autor: Lk (coringakaio)
 -- Compatível com Delta, Fluxus e Codex
 -- ================================================
 
--- 🔹 Carrega WindUI com segurança
+-- 🧩 Carrega WindUI com segurança e inicializa
 local success, WindUI = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/source.lua"))()
 end)
 
 if not success or not WindUI then
-    warn("[BatataHub] Falha ao carregar WindUI!")
+    warn("[BatataHub] ❌ Falha ao carregar WindUI!")
     return
 end
 
--- Cria janela principal
+-- Alguns forks precisam de inicialização explícita
+if WindUI.Init then
+    pcall(WindUI.Init)
+end
+
+-- Pequeno delay para garantir que a GUI esteja pronta
+task.wait(0.5)
+
+-- ✅ Cria janela principal
 local Window = WindUI:CreateWindow({
-    Title = "Batata Hub v3.3",
+    Title = "Batata Hub v3.4",
     Icon = "door-open",
     Author = "Owner Lk",
     Folder = "BatataHub",
     Size = UDim2.fromOffset(580, 520),
     MinSize = Vector2.new(560, 400),
     MaxSize = Vector2.new(850, 600),
-    Transparent = true,
+    Transparent = false, -- ⚠️ Deixamos visível
     Theme = "Dark",
     Resizable = true,
     SideBarWidth = 200,
-    BackgroundImageTransparency = 0.42,
+    BackgroundImageTransparency = 0.15, -- leve transparência
     HideSearchBar = true,
     ScrollBarEnabled = false,
     User = {
@@ -39,10 +47,15 @@ local Window = WindUI:CreateWindow({
     },
 })
 
--- ✅ Notify ao iniciar
+if not Window then
+    warn("[BatataHub] ⚠️ Falha ao criar janela WindUI!")
+    return
+end
+
+-- 🎉 Notify de inicialização
 WindUI:Notify({
     Title = "✅ BatataHub Iniciado!",
-    Content = "Versão 3.3 carregada com sucesso.",
+    Content = "Versão 3.4 carregada com sucesso.",
     Duration = 4,
     Icon = "check-circle"
 })
@@ -53,9 +66,8 @@ WindUI:Notify({
 local InfoTab = Window:Tab({Title = "Informações", Icon = "info", Locked = false})
 InfoTab:Paragraph({Title = "👤 Criador: Lk"})
 InfoTab:Paragraph({Title = "💬 Discord: coringakaio"})
-InfoTab:Paragraph({Title = "📦 Versão: 3.3"})
-InfoTab:Paragraph({Title = "✨ Funcionalidades:\n- Speed ajustável\n- Super Jump\n- Noclip\n- Notificação Global do Owner"})
-InfoTab:Paragraph({Title = "⚙️ Compatível com:\n- Delta\n- Fluxus\n- Codex"})
+InfoTab:Paragraph({Title = "📦 Versão: 3.4"})
+InfoTab:Paragraph({Title = "✨ Funcionalidades:\n- Speed ajustável\n- Super Jump\n- Noclip\n- Notify Global do Owner"})
 InfoTab:Paragraph({Title = "💡 Dica: use com cuidado e divirta-se!"})
 
 InfoTab:Button({
@@ -69,24 +81,6 @@ InfoTab:Button({
                 Duration = 3,
                 Icon = "clipboard"
             })
-        else
-            print("[BatataHub] Seu executor não suporta copiar texto.")
-        end
-    end
-})
-
-InfoTab:Button({
-    Title = "🔗 Copiar Link do Servidor",
-    Callback = function()
-        local link = "https://discord.gg/seuservidor"
-        if setclipboard then
-            setclipboard(link)
-            WindUI:Notify({
-                Title = "🔗 Link Copiado",
-                Content = "Convite copiado para a área de transferência.",
-                Duration = 3,
-                Icon = "link"
-            })
         end
     end
 })
@@ -94,106 +88,59 @@ InfoTab:Button({
 -- ================================================
 -- 👑 Notify Global do Owner
 -- ================================================
-local ownerUserId = 7607971236 -- coloque o UserId real do dono
+local ownerUserId = 7607971236
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
-local ownerPlayer = nil
 local ownerOnline = false
 
-local function broadcast(message, icon)
+local function broadcast(msg, icon)
     WindUI:Notify({
         Title = "👑 BatataHub Global",
-        Content = message,
+        Content = msg,
         Duration = 5,
         Icon = icon or "megaphone"
     })
 end
 
 local function ownerJoined(pl)
-    ownerPlayer = pl
     ownerOnline = true
-    broadcast(pl.Name .. " (Owner) entrou no servidor! 👑", "user-check")
+    broadcast("🔥 " .. pl.Name .. " (Owner) entrou no servidor!", "user-check")
 end
 
 local function ownerLeft()
-    local prevName = ownerPlayer and ownerPlayer.Name or "Owner"
-    ownerPlayer = nil
     ownerOnline = false
-    broadcast(prevName .. " (Owner) saiu do servidor. 🚪", "user-x")
-end
-
-local function findOwnerPlayer()
-    for _, pl in pairs(Players:GetPlayers()) do
-        if pl.UserId == ownerUserId then
-            return pl
-        end
-    end
-    return nil
-end
-
-local function initOwnerPresence()
-    local found = findOwnerPlayer()
-    if found then
-        ownerJoined(found)
-    else
-        ownerOnline = false
-    end
+    broadcast("🚪 O Owner saiu do servidor.", "user-x")
 end
 
 Players.PlayerAdded:Connect(function(pl)
-    if pl.UserId == ownerUserId then
-        ownerJoined(pl)
-    end
+    if pl.UserId == ownerUserId then ownerJoined(pl) end
 end)
 
 Players.PlayerRemoving:Connect(function(pl)
-    if pl.UserId == ownerUserId then
-        ownerLeft()
-    end
+    if pl.UserId == ownerUserId then ownerLeft() end
 end)
-
--- Loop de verificação a cada 2 segundos
-local securityCheckInterval = 2
-local accumulatedTime = 0
-
-RunService.Heartbeat:Connect(function(dt)
-    accumulatedTime = accumulatedTime + dt
-    if accumulatedTime >= securityCheckInterval then
-        accumulatedTime = 0
-        local found = findOwnerPlayer()
-        if found and not ownerOnline then
-            ownerJoined(found)
-        elseif not found and ownerOnline then
-            ownerLeft()
-        end
-    end
-end)
-
-initOwnerPresence()
 
 -- ================================================
 -- 🧍 Aba Player
 -- ================================================
-local PlayerTab = Window:Tab({Title = "Player", Icon = "user", Locked = false})
-PlayerTab:Paragraph({Title = "🎮 Controle seu personagem", Content = "Use os sliders para ajustar Speed e Jump em tempo real."})
-
--- Configurações iniciais
+local PlayerTab = Window:Tab({Title = "Player", Icon = "user"})
 local cfg = {speedValue=70, jumpValue=50, speedEnabled=false, jumpEnabled=false, noclip=false}
 local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local humanoid = char:FindFirstChildOfClass("Humanoid") or char:WaitForChild("Humanoid")
+
+local function updateChar()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local humanoid = char:FindFirstChildOfClass("Humanoid") or char:WaitForChild("Humanoid")
+    return humanoid
+end
 
 local function updateSpeed()
-    if humanoid then
-        humanoid.WalkSpeed = cfg.speedEnabled and cfg.speedValue or 16
-    end
+    local h = updateChar()
+    h.WalkSpeed = cfg.speedEnabled and cfg.speedValue or 16
 end
 
 local function updateJump()
-    if humanoid then
-        humanoid.JumpPower = cfg.jumpEnabled and cfg.jumpValue or 50
-    end
+    local h = updateChar()
+    h.JumpPower = cfg.jumpEnabled and cfg.jumpValue or 50
 end
 
 PlayerTab:Toggle({
@@ -204,7 +151,7 @@ PlayerTab:Toggle({
         updateSpeed()
         WindUI:Notify({
             Title = state and "🚀 Speed Ativado" or "🐢 Speed Desativado",
-            Content = "Velocidade ajustada para " .. cfg.speedValue,
+            Content = "Velocidade: " .. cfg.speedValue,
             Duration = 3,
             Icon = "zap"
         })
@@ -215,21 +162,21 @@ PlayerTab:Slider({
     Title = "Velocidade",
     Step = 1,
     Value = {Min=20, Max=120, Default=cfg.speedValue},
-    Callback = function(value)
-        cfg.speedValue = value
+    Callback = function(v)
+        cfg.speedValue = v
         updateSpeed()
     end
 })
 
 PlayerTab:Toggle({
-    Title = "🦘 Ativar Super Jump",
+    Title = "🦘 Super Jump",
     Default = false,
-    Callback = function(state)
-        cfg.jumpEnabled = state
+    Callback = function(s)
+        cfg.jumpEnabled = s
         updateJump()
         WindUI:Notify({
-            Title = state and "🦘 Super Jump Ativado" or "🪶 Super Jump Desativado",
-            Content = "Força do pulo: " .. cfg.jumpValue,
+            Title = s and "🦘 Super Jump Ativado" or "🪶 Super Jump Desativado",
+            Content = "Força: " .. cfg.jumpValue,
             Duration = 3,
             Icon = "chevrons-up"
         })
@@ -240,8 +187,8 @@ PlayerTab:Slider({
     Title = "Força do Pulo",
     Step = 1,
     Value = {Min=10, Max=200, Default=cfg.jumpValue},
-    Callback = function(value)
-        cfg.jumpValue = value
+    Callback = function(v)
+        cfg.jumpValue = v
         updateJump()
     end
 })
@@ -249,15 +196,15 @@ PlayerTab:Slider({
 -- ================================================
 -- 🫥 Aba Noclip
 -- ================================================
-local TrollTab = Window:Tab({Title = "Noclip", Icon = "ghost", Locked = false})
+local TrollTab = Window:Tab({Title = "Noclip", Icon = "ghost"})
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
     Default = false,
-    Callback = function(value)
-        cfg.noclip = value
+    Callback = function(v)
+        cfg.noclip = v
         WindUI:Notify({
-            Title = value and "🫥 Noclip Ativado" or "🚫 Noclip Desativado",
-            Content = value and "Você pode atravessar paredes." or "As colisões foram restauradas.",
+            Title = v and "🫥 Noclip Ativado" or "🚫 Noclip Desativado",
+            Content = v and "Você pode atravessar paredes." or "As colisões foram restauradas.",
             Duration = 3,
             Icon = "ghost"
         })
@@ -267,13 +214,10 @@ TrollTab:Toggle({
 game:GetService("RunService").Stepped:Connect(function()
     if cfg.noclip and player.Character then
         for _, part in ipairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
+            if part:IsA("BasePart") then part.CanCollide = false end
         end
     end
 end)
 
 -- ================================================
--- Exibe versão carregada no console
-print("[✅ BatataHub] v3.3 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+print("[✅ BatataHub] v3.4 carregado com sucesso! " .. os.date("%d/%m/%Y %H:%M:%S"))
