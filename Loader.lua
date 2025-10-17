@@ -4,7 +4,7 @@
 -- ================================================
 
 local loaderVersion = "3.7"
-local mainScriptURL = "https://raw.githubusercontent.com/kaique9273/Batatahub/main/BatataHub_v3.4.lua"
+local mainScriptURL = "https://raw.githubusercontent.com/kaique9273/Batatahub/refs/heads/main/BatataHub_v3.4.lua"
 local winduiURL = "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"
 
 -- ================================================
@@ -99,3 +99,4 @@ end
 -- 4️⃣ Mensagem final de sucesso
 -- ================================================
 console("✅ Loader finalizado. Tudo pronto!", "green")
+
