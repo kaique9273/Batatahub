@@ -1,22 +1,22 @@
---#version: 3.2
+--#version: 3.3
 -- ================================================
--- 🌟 BatataHub v3.2 | Autor: Lk (coringakaio)
+-- 🌟 BatataHub v3.3 | Autor: Lk (coringakaio)
 -- Compatível com Delta, Fluxus e Codex
 -- ================================================
 
--- Carrega WindUI com segurança
+-- 🔹 Carrega WindUI com segurança
 local success, WindUI = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/kaique9273/BatataHub/main/BatataHub.lua", true))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/source.lua"))()
 end)
 
-if not success then
+if not success or not WindUI then
     warn("[BatataHub] Falha ao carregar WindUI!")
     return
 end
 
 -- Cria janela principal
 local Window = WindUI:CreateWindow({
-    Title = "Batata Hub v3.2",
+    Title = "Batata Hub v3.3",
     Icon = "door-open",
     Author = "Owner Lk",
     Folder = "BatataHub",
@@ -39,14 +39,22 @@ local Window = WindUI:CreateWindow({
     },
 })
 
+-- ✅ Notify ao iniciar
+WindUI:Notify({
+    Title = "✅ BatataHub Iniciado!",
+    Content = "Versão 3.3 carregada com sucesso.",
+    Duration = 4,
+    Icon = "check-circle"
+})
+
 -- ================================================
 -- 📘 Aba de Informações
 -- ================================================
 local InfoTab = Window:Tab({Title = "Informações", Icon = "info", Locked = false})
 InfoTab:Paragraph({Title = "👤 Criador: Lk"})
 InfoTab:Paragraph({Title = "💬 Discord: coringakaio"})
-InfoTab:Paragraph({Title = "📦 Versão: 3.2"})
-InfoTab:Paragraph({Title = "✨ Funcionalidades:\n- Speed ajustável\n- Super Jump\n- Noclip\n- Estilo Moderno (Drip)"})
+InfoTab:Paragraph({Title = "📦 Versão: 3.3"})
+InfoTab:Paragraph({Title = "✨ Funcionalidades:\n- Speed ajustável\n- Super Jump\n- Noclip\n- Notificação Global do Owner"})
 InfoTab:Paragraph({Title = "⚙️ Compatível com:\n- Delta\n- Fluxus\n- Codex"})
 InfoTab:Paragraph({Title = "💡 Dica: use com cuidado e divirta-se!"})
 
@@ -55,7 +63,12 @@ InfoTab:Button({
     Callback = function()
         if setclipboard then
             setclipboard("coringakaio")
-            print("[BatataHub] Discord copiado!")
+            WindUI:Notify({
+                Title = "📎 Discord Copiado",
+                Content = "Usuário: coringakaio",
+                Duration = 3,
+                Icon = "clipboard"
+            })
         else
             print("[BatataHub] Seu executor não suporta copiar texto.")
         end
@@ -68,13 +81,18 @@ InfoTab:Button({
         local link = "https://discord.gg/seuservidor"
         if setclipboard then
             setclipboard(link)
-            print("[BatataHub] Link copiado!")
+            WindUI:Notify({
+                Title = "🔗 Link Copiado",
+                Content = "Convite copiado para a área de transferência.",
+                Duration = 3,
+                Icon = "link"
+            })
         end
     end
 })
 
-- ================================================
--- 👑 Notify do Owner
+-- ================================================
+-- 👑 Notify Global do Owner
 -- ================================================
 local ownerUserId = 7607971236 -- coloque o UserId real do dono
 local Players = game:GetService("Players")
@@ -83,27 +101,26 @@ local RunService = game:GetService("RunService")
 local ownerPlayer = nil
 local ownerOnline = false
 
+local function broadcast(message, icon)
+    WindUI:Notify({
+        Title = "👑 BatataHub Global",
+        Content = message,
+        Duration = 5,
+        Icon = icon or "megaphone"
+    })
+end
+
 local function ownerJoined(pl)
     ownerPlayer = pl
     ownerOnline = true
-    WindUI:Notify({
-        Title = "Owner entrou",
-        Content = pl.Name .. " está no mesmo servidor!",
-        Duration = 4,
-        Icon = "user-check"
-    })
+    broadcast(pl.Name .. " (Owner) entrou no servidor! 👑", "user-check")
 end
 
 local function ownerLeft()
     local prevName = ownerPlayer and ownerPlayer.Name or "Owner"
     ownerPlayer = nil
     ownerOnline = false
-    WindUI:Notify({
-        Title = "Owner saiu",
-        Content = prevName .. " não está mais aqui.",
-        Duration = 4,
-        Icon = "user-check"
-    })
+    broadcast(prevName .. " (Owner) saiu do servidor. 🚪", "user-x")
 end
 
 local function findOwnerPlayer()
@@ -136,7 +153,7 @@ Players.PlayerRemoving:Connect(function(pl)
     end
 end)
 
--- Loop de segurança otimizado (2 segundos)
+-- Loop de verificação a cada 2 segundos
 local securityCheckInterval = 2
 local accumulatedTime = 0
 
@@ -185,6 +202,12 @@ PlayerTab:Toggle({
     Callback = function(state)
         cfg.speedEnabled = state
         updateSpeed()
+        WindUI:Notify({
+            Title = state and "🚀 Speed Ativado" or "🐢 Speed Desativado",
+            Content = "Velocidade ajustada para " .. cfg.speedValue,
+            Duration = 3,
+            Icon = "zap"
+        })
     end
 })
 
@@ -204,6 +227,12 @@ PlayerTab:Toggle({
     Callback = function(state)
         cfg.jumpEnabled = state
         updateJump()
+        WindUI:Notify({
+            Title = state and "🦘 Super Jump Ativado" or "🪶 Super Jump Desativado",
+            Content = "Força do pulo: " .. cfg.jumpValue,
+            Duration = 3,
+            Icon = "chevrons-up"
+        })
     end
 })
 
@@ -226,7 +255,12 @@ TrollTab:Toggle({
     Default = false,
     Callback = function(value)
         cfg.noclip = value
-        print("[BatataHub] Noclip está:", value)
+        WindUI:Notify({
+            Title = value and "🫥 Noclip Ativado" or "🚫 Noclip Desativado",
+            Content = value and "Você pode atravessar paredes." or "As colisões foram restauradas.",
+            Duration = 3,
+            Icon = "ghost"
+        })
     end
 })
 
@@ -242,4 +276,4 @@ end)
 
 -- ================================================
 -- Exibe versão carregada no console
-print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+print("[✅ BatataHub] v3.3 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
