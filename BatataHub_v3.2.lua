@@ -46,6 +46,7 @@ local Window = WindUI:CreateWindow({
 -- ================================================
 local InfoTab = Window:Tab({Title = "Informações", Icon = "info", Locked = false})
 InfoTab:Paragraph({Title = "👤 Criador: Lk"})
+InfoTab:Paragraph({Title = "💻 Programador: @Roblox0012327"})
 InfoTab:Paragraph({Title = "💬 Discord: coringakaio"})
 InfoTab:Paragraph({Title = "📦 Versão: 3.2"})
 InfoTab:Paragraph({Title = "✨ Funcionalidades:\n- Speed ajustável\n- Super Jump\n- Noclip\n- Estilo Moderno (Drip)"})
@@ -205,6 +206,23 @@ PlayerTab:Toggle({
     Callback = function(state)
         cfg.jumpEnabled = state
         updateJump()
+  
+            
+        if value then
+            WindUI:Notify({
+                Title = "Jump Ativado",
+                Content = "Você Virou O superman!",
+                Duration = 3,
+                Icon = "ghost"
+            })
+        else
+            WindUI:Notify({
+                Title = "Jump Desativado",
+                Content = "Você Desatuvou o Jump.",
+                Duration = 3,
+                Icon = "ghost"
+            })
+        end
     end
 })
 
@@ -263,3 +281,4 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
