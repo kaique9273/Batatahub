@@ -23,7 +23,7 @@ console("Baixando script mais recente...")
 
 -- 1️⃣ Carrega WindUI
 local windSuccess, WindUI = pcall(function()
-    return loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua", true))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/kaique9273/Batatahub/refs/heads/main/BatataHubv3.2", true))()
 end)
 
 if not windSuccess or not WindUI then
@@ -63,3 +63,4 @@ else
     warn("❌ Falha ao baixar o script remoto!")
     notify("❌ BatataHub","Erro ao baixar script. Verifique sua conexão ou GitHub.",6)
 end
+
