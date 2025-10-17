@@ -1,10 +1,10 @@
 -- ================================================
--- 🌟 BatataHub Loader v3.4 | Autor: Lk
--- 🔧 Auto Update + Checagem de WindUI + Versão automática
+-- 🌟 BatataHub Loader v3.5 | Autor: Lk
+-- 🔧 Auto Update + Checagem de WindUI + GitHub
 -- ================================================
 
--- Link RAW do script principal
-local mainScriptURL = "https://raw.githubusercontent.com/kaique9273/Batatahub/refs/heads/main/BatataHubv1.lua"
+local mainScriptURL = "https://raw.githubusercontent.com/kaique9273/Batatahub/main/BatataHub_v3.2.lua"
+local loaderVersion = "3.5"
 
 -- Função de notificação
 local function notify(title,text,duration)
@@ -19,7 +19,7 @@ local function console(msg)
     print("🔹 [BatataHub Loader] "..msg)
 end
 
-console("Iniciando BatataHub Loader v3.4...")
+console("Iniciando BatataHub Loader v"..loaderVersion.."...")
 console("Baixando script mais recente...")
 
 -- 1️⃣ Carrega WindUI (link RAW direto)
@@ -46,6 +46,7 @@ if success and response then
     print("✅ BatataHub carregado com sucesso!")
     print("📅 Data: "..os.date("%d/%m/%Y"))
     print("⏰ Hora: "..os.date("%H:%M:%S"))
+    print("📦 Loader: v"..loaderVersion)
     print("🌐 Script remoto: v"..remoteVersion)
     print("======================================")
 
@@ -64,4 +65,3 @@ else
     warn("❌ Falha ao baixar o script remoto!")
     notify("❌ BatataHub","Erro ao baixar script. Verifique sua conexão ou GitHub.",6)
 end
-
