@@ -243,26 +243,64 @@ PlayerTab:Slider({
 })
 
 -- ================================================
--- 🫥 Aba Noclip (corrigida)
+-- 🫥 Aba Noclip (otimizada)
 -- ================================================
 local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
 TrollTab:Paragraph({Title = "Atravessar Paredes"})
 
+local RunService = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+cfg = cfg or {}
+cfg.noclip = false
+
+-- Função para ativar/desativar noclip
 local function setNoclip(state)
     if not player.Character then return end
-    for _, part in ipairs(player.Character:GetDescendants()) do
-        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+    local char = player.Character
+
+    -- Alterar colisão de todas as partes
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
             part.CanCollide = not state
         end
     end
+
+    -- Garantir que o HumanoidRootPart também não bloqueie
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CanCollide = not state
+    end
+
+    -- Ajusta o estado do humanoid para manter física correta
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid:ChangeState(state and Enum.HumanoidStateType.Physics or Enum.HumanoidStateType.GettingUp)
+    end
 end
 
+-- Loop de manutenção do noclip apenas quando ativo
+local noclipConnection
+local function toggleHeartbeat(state)
+    if state and not noclipConnection then
+        noclipConnection = RunService.Heartbeat:Connect(function()
+            if cfg.noclip and player.Character then
+                setNoclip(true)
+            end
+        end)
+    elseif not state and noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+end
+
+-- Toggle no painel
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
     Default = false,
     Callback = function(value)
         cfg.noclip = value
         setNoclip(value)
+        toggleHeartbeat(value)
         WindUI:Notify({
             Title = value and "Noclip Ativado" or "Noclip Desativado",
             Content = value and "Você agora atravessa paredes!" or "Você voltou a colidir normalmente.",
@@ -272,11 +310,9 @@ TrollTab:Toggle({
     end
 })
 
--- Atualiza humanoid e aplica noclip após respawn
-player.CharacterAdded:Connect(function()
-    updateHumanoid()
-    updateSpeed()
-    updateJump()
+-- Aplica noclip automaticamente após respawn
+player.CharacterAdded:Connect(function(char)
+    char:WaitForChild("HumanoidRootPart")
     if cfg.noclip then
         setNoclip(true)
     end
