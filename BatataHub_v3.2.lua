@@ -148,14 +148,12 @@ TrollTab:Toggle({
     Default = false,
     Callback = function(value)
         cfg.noclip = value
-
-        windui:Notify({
-          title = "Noclip,
-             Description = value and "Noclip Ativado✅" or "Noclip Desativado✅",
-              Duration = 3,
-                icon = "ghost",
-                    Type = value and "Sucess" or "warning"
-                })      
+        WinDUi:Notify({
+             Title = "Noclip",
+             Descrition = value and "Noclip Ativado" or "Noclip Desativado",
+             Duration = 3,
+             icon = "ghost",
+                })
     end
 })
 
@@ -177,6 +175,7 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
 
 
 
