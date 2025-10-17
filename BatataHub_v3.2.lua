@@ -143,17 +143,30 @@ PlayerTab:Slider({
 local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
 
 TrollTab:Paragraph({Title = "Atravessar Paredes",})
+
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
     Default = false,
     Callback = function(value)
         cfg.noclip = value
-        WinDUi:Notify({
-             Title = "Noclip",
-             Descrition = value and "Noclip Ativado" or "Noclip Desativado",
-             Duration = 3,
-             icon = "ghost",
-                })
+        print("[BatataHub] Noclip está:", value)
+
+        -- Notify estilo BatataHub
+        if value then
+            WindUI:Notify({
+                Title = "Noclip Ativado",
+                Content = "Você agora atravessa paredes!",
+                Duration = 3,
+                Icon = "ghost" -- ícone do notify
+            })
+        else
+            WindUI:Notify({
+                Title = "Noclip Desativado",
+                Content = "Você voltou a colidir normalmente.",
+                Duration = 3,
+                Icon = "ghost"
+            })
+        end
     end
 })
 
@@ -175,6 +188,7 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
 
 
 
