@@ -151,10 +151,14 @@ TrollTab:Toggle({
 })
 
 game:GetService("RunService").Stepped:Connect(function()
-    if cfg.noclip and player.Character then
+    if player.Character then
         for _, part in ipairs(player.Character:GetDescendants()) do
             if part:IsA("BasePart") then
-                part.CanCollide = false
+                if cfg.noclip then
+                    part.CanCollide = false
+                else
+                    part.CanCollide = true
+                end
             end
         end
     end
@@ -164,3 +168,4 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
