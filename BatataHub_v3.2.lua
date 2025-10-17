@@ -1,4 +1,4 @@
---#version: 3.2
+--#version: 3.3
 -- ================================================
 -- 🌟 BatataHub v3.2 | Autor: Lk (coringakaio)
 -- Compatível com Delta, Fluxus e Codex
@@ -263,3 +263,4 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
