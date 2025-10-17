@@ -207,8 +207,7 @@ PlayerTab:Toggle({
         cfg.jumpEnabled = state
         updateJump()
   
-            
-        if value then
+         if state then
             WindUI:Notify({
                 Title = "Jump Ativado",
                 Content = "Você Virou O superman!",
@@ -218,7 +217,7 @@ PlayerTab:Toggle({
         else
             WindUI:Notify({
                 Title = "Jump Desativado",
-                Content = "Você Desatuvou o Jump.",
+                Content = "Você Desativou o Jump.",
                 Duration = 3,
                 Icon = "ghost"
             })
@@ -281,4 +280,5 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
 
