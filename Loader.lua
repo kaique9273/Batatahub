@@ -4,7 +4,7 @@
 -- ================================================
 
 -- Link RAW do script principal
-local mainScriptURL = "https://raw.githubusercontent.com/kaique9273/Batatahub/refs/heads/main/Batata%20Hub%20v1.lua"
+local mainScriptURL = "https://raw.githubusercontent.com/kaique9273/Batatahub/refs/heads/main/BatataHubv1.lua"
 
 -- Função de notificação
 local function notify(title,text,duration)
@@ -64,3 +64,4 @@ else
     warn("❌ Falha ao baixar o script remoto!")
     notify("❌ BatataHub","Erro ao baixar script. Verifique sua conexão ou GitHub.",6)
 end
+
