@@ -243,33 +243,46 @@ PlayerTab:Slider({
 })
 
 -- ================================================
--- 🫥 Aba Noclip com CollisionGroups
+-- 🫥 Aba Noclip aprimorada (com detecção de chão)
 -- ================================================
 local PhysicsService = game:GetService("PhysicsService")
 local player = game.Players.LocalPlayer
 
--- Cria grupos se não existirem
+-- Garante grupos de colisão
 pcall(function() PhysicsService:CreateCollisionGroup("Players") end)
-pcall(function() PhysicsService:CreateCollisionGroup("Map") end) -- Certifique-se que seus objetos do mapa estão nesse grupo
--- Configura a regra: Players não colide com Map
-PhysicsService:CollisionGroupSetCollidable("Players", "Map", false)
-
--- Toggle Noclip
-local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
-TrollTab:Paragraph({Title = "Atravessar Paredes"})
+PhysicsService:CollisionGroupSetCollidable("Players", "Players", true)
 
 local cfg = cfg or {}
 cfg.noclip = false
 
+local function isFloor(part)
+    -- Detecta se o chão é horizontal (ângulo menor que 15°)
+    local up = Vector3.new(0, 1, 0)
+    local _, size = part:GetBoundingBox()
+    local normal = part.CFrame:VectorToWorldSpace(Vector3.new(0, 1, 0))
+    local angle = math.deg(math.acos(normal:Dot(up)))
+    return angle < 15 and size.Y < size.X and size.Y < size.Z
+end
+
 local function setNoclip(state)
     if not player.Character then return end
+
     for _, part in ipairs(player.Character:GetDescendants()) do
         if part:IsA("BasePart") then
-            -- Coloca todas as partes do personagem no grupo "Players" para ignorar o mapa
-            PhysicsService:SetPartCollisionGroup(part, state and "Players" or "Default")
+            if state then
+                -- Desativa colisão apenas se não for chão
+                if not isFloor(part) then
+                    part.CanCollide = false
+                end
+            else
+                part.CanCollide = true
+            end
         end
     end
 end
+
+local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
+TrollTab:Paragraph({Title = "Atravessar Paredes"})
 
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
@@ -277,18 +290,19 @@ TrollTab:Toggle({
     Callback = function(value)
         cfg.noclip = value
         setNoclip(value)
+
         WindUI:Notify({
             Title = value and "Noclip Ativado" or "Noclip Desativado",
-            Content = value and "Você agora atravessa paredes e objetos!" or "Colisão normal restaurada.",
+            Content = value and "Você pode atravessar paredes, mas não o chão!" or "Colisão restaurada.",
             Duration = 3,
             Icon = "ghost"
         })
     end
 })
 
--- Aplica Noclip no respawn se estiver ativo
 player.CharacterAdded:Connect(function()
     if cfg.noclip then
+        task.wait(1)
         setNoclip(true)
     end
 end)
@@ -297,4 +311,5 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
+
 
