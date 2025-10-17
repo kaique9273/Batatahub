@@ -194,30 +194,5 @@ PlayerTab:Slider({
 })
 
 -- ================================================
--- 🫥 Aba Noclip
--- ================================================
-local TrollTab = Window:Tab({Title = "Noclip", Icon = "ghost"})
-TrollTab:Toggle({
-    Title = "🫥 Ativar Noclip",
-    Default = false,
-    Callback = function(v)
-        cfg.noclip = v
-        WindUI:Notify({
-            Title = v and "🫥 Noclip Ativado" or "🚫 Noclip Desativado",
-            Content = v and "Você pode atravessar paredes." or "As colisões foram restauradas.",
-            Duration = 3,
-            Icon = "ghost"
-        })
-    end
-})
-
-game:GetService("RunService").Stepped:Connect(function()
-    if cfg.noclip and player.Character then
-        for _, part in ipairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then part.CanCollide = false end
-        end
-    end
-end)
-
--- ================================================
 print("[✅ BatataHub] v3.4 carregado com sucesso! " .. os.date("%d/%m/%Y %H:%M:%S"))
+
