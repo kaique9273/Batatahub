@@ -1,4 +1,4 @@
---#version: 3.2
+--#version: 3.3
 -- ================================================
 -- 🌟 BatataHub v3.2 | Autor: Lk (coringakaio)
 -- Compatível com Delta, Fluxus e Codex
@@ -123,7 +123,7 @@ local function initOwnerPresence()
     if found then
         ownerJoined(found)
     else
-        ownerLeft()
+        ownerOnline = false
     end
 end
 
@@ -159,7 +159,7 @@ end)
 initOwnerPresence()
 
 -- ================================================
--- 🧍 Aba Player
+-- 🧍 Aba Player (corrigida)
 -- ================================================
 local PlayerTab = Window:Tab({Title = "Player", Icon = "user", Locked = false})
 PlayerTab:Paragraph({Title = "🎮 Controle seu personagem", Content = "Use os sliders para ajustar Speed e Jump em tempo real."})
@@ -169,6 +169,13 @@ local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local humanoid = char:FindFirstChildOfClass("Humanoid") or char:WaitForChild("Humanoid")
 
+-- Atualiza humanoid e character após respawn
+local function updateHumanoid()
+    char = player.Character or player.CharacterAdded:Wait()
+    humanoid = char:FindFirstChildOfClass("Humanoid") or char:WaitForChild("Humanoid")
+end
+
+-- Funções de Speed e Jump
 local function updateSpeed()
     if humanoid then
         humanoid.WalkSpeed = cfg.speedEnabled and cfg.speedValue or 16
@@ -181,15 +188,23 @@ local function updateJump()
     end
 end
 
+-- Toggle Speed
 PlayerTab:Toggle({
     Title = "⚡ Ativar Speed",
     Default = false,
     Callback = function(state)
         cfg.speedEnabled = state
         updateSpeed()
+        WindUI:Notify({
+            Title = state and "Speed Ativado" or "Speed Desativado",
+            Content = state and "Sua velocidade foi aumentada!" or "Velocidade normal.",
+            Duration = 3,
+            Icon = "flash"
+        })
     end
 })
 
+-- Slider Speed
 PlayerTab:Slider({
     Title = "Velocidade",
     Step = 1,
@@ -200,31 +215,23 @@ PlayerTab:Slider({
     end
 })
 
+-- Toggle Jump
 PlayerTab:Toggle({
     Title = "🦘 Ativar Super Jump",
     Default = false,
     Callback = function(state)
         cfg.jumpEnabled = state
         updateJump()
-  
-         if state then
-            WindUI:Notify({
-                Title = "Jump Ativado",
-                Content = "Você Virou O superman!",
-                Duration = 3,
-                Icon = "ghost"
-            })
-        else
-            WindUI:Notify({
-                Title = "Jump Desativado",
-                Content = "Você Desativou o Jump.",
-                Duration = 3,
-                Icon = "ghost"
-            })
-        end
+        WindUI:Notify({
+            Title = state and "Jump Ativado" or "Jump Desativado",
+            Content = state and "Você virou o superman!" or "Você voltou ao normal.",
+            Duration = 3,
+            Icon = "ghost"
+        })
     end
 })
 
+-- Slider Jump
 PlayerTab:Slider({
     Title = "Força do Pulo",
     Step = 1,
@@ -236,43 +243,42 @@ PlayerTab:Slider({
 })
 
 -- ================================================
--- 🫥 Aba Noclip
+-- 🫥 Aba Noclip (corrigida)
 -- ================================================
 local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
 TrollTab:Paragraph({Title = "Atravessar Paredes"})
+
+local function setNoclip(state)
+    if not player.Character then return end
+    for _, part in ipairs(player.Character:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            part.CanCollide = not state
+        end
+    end
+end
 
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
     Default = false,
     Callback = function(value)
         cfg.noclip = value
-        print("[BatataHub] Noclip está:", value)
-
-        if value then
-            WindUI:Notify({
-                Title = "Noclip Ativado",
-                Content = "Você agora atravessa paredes!",
-                Duration = 3,
-                Icon = "ghost"
-            })
-        else
-            WindUI:Notify({
-                Title = "Noclip Desativado",
-                Content = "Você voltou a colidir normalmente.",
-                Duration = 3,
-                Icon = "ghost"
-            })
-        end
+        setNoclip(value)
+        WindUI:Notify({
+            Title = value and "Noclip Ativado" or "Noclip Desativado",
+            Content = value and "Você agora atravessa paredes!" or "Você voltou a colidir normalmente.",
+            Duration = 3,
+            Icon = "ghost"
+        })
     end
 })
 
-game:GetService("RunService").Stepped:Connect(function()
-    if player.Character then
-        for _, part in ipairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = not cfg.noclip
-            end
-        end
+-- Atualiza humanoid e aplica noclip após respawn
+player.CharacterAdded:Connect(function()
+    updateHumanoid()
+    updateSpeed()
+    updateJump()
+    if cfg.noclip then
+        setNoclip(true)
     end
 end)
 
@@ -280,5 +286,3 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
-
-
