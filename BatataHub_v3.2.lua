@@ -4,7 +4,7 @@
 -- Compatível com Delta, Fluxus e Codex
 -- ================================================
 
--- 🔹 Carrega WindUI com segurança (link corrigido)
+-- 🔹 Carrega WindUI com segurança
 local success, WindUI = pcall(function()
     return loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 end)
@@ -76,12 +76,93 @@ InfoTab:Button({
 })
 
 -- ================================================
+-- 👑 Notify do Owner
+-- ================================================
+local ownerUserId = 7607971236 -- coloque o UserId real do dono
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local ownerPlayer = nil
+local ownerOnline = false
+
+local function ownerJoined(pl)
+    ownerPlayer = pl
+    ownerOnline = true
+    WindUI:Notify({
+        Title = "Owner entrou",
+        Content = pl.Name .. " está no mesmo servidor!",
+        Duration = 4,
+        Icon = "user-check"
+    })
+end
+
+local function ownerLeft()
+    local prevName = ownerPlayer and ownerPlayer.Name or "Owner"
+    ownerPlayer = nil
+    ownerOnline = false
+    WindUI:Notify({
+        Title = "Owner saiu",
+        Content = prevName .. " não está mais aqui.",
+        Duration = 4,
+        Icon = "user-check"
+    })
+end
+
+local function findOwnerPlayer()
+    for _, pl in pairs(Players:GetPlayers()) do
+        if pl.UserId == ownerUserId then
+            return pl
+        end
+    end
+    return nil
+end
+
+local function initOwnerPresence()
+    local found = findOwnerPlayer()
+    if found then
+        ownerJoined(found)
+    else
+        ownerLeft()
+    end
+end
+
+Players.PlayerAdded:Connect(function(pl)
+    if pl.UserId == ownerUserId then
+        ownerJoined(pl)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(pl)
+    if pl.UserId == ownerUserId then
+        ownerLeft()
+    end
+end)
+
+-- Loop de segurança otimizado (2 segundos)
+local securityCheckInterval = 2
+local accumulatedTime = 0
+
+RunService.Heartbeat:Connect(function(dt)
+    accumulatedTime = accumulatedTime + dt
+    if accumulatedTime >= securityCheckInterval then
+        accumulatedTime = 0
+        local found = findOwnerPlayer()
+        if found and not ownerOnline then
+            ownerJoined(found)
+        elseif not found and ownerOnline then
+            ownerLeft()
+        end
+    end
+end)
+
+initOwnerPresence()
+
+-- ================================================
 -- 🧍 Aba Player
 -- ================================================
 local PlayerTab = Window:Tab({Title = "Player", Icon = "user", Locked = false})
 PlayerTab:Paragraph({Title = "🎮 Controle seu personagem", Content = "Use os sliders para ajustar Speed e Jump em tempo real."})
 
--- Configurações iniciais
 local cfg = {speedValue=70, jumpValue=50, speedEnabled=false, jumpEnabled=false, noclip=false}
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
@@ -141,12 +222,30 @@ PlayerTab:Slider({
 -- 🫥 Aba Noclip
 -- ================================================
 local TrollTab = Window:Tab({Title = "Troll", Icon = "skull", Locked = false})
+TrollTab:Paragraph({Title = "Atravessar Paredes"})
+
 TrollTab:Toggle({
     Title = "🫥 Ativar Noclip",
     Default = false,
     Callback = function(value)
         cfg.noclip = value
         print("[BatataHub] Noclip está:", value)
+
+        if value then
+            WindUI:Notify({
+                Title = "Noclip Ativado",
+                Content = "Você agora atravessa paredes!",
+                Duration = 3,
+                Icon = "ghost"
+            })
+        else
+            WindUI:Notify({
+                Title = "Noclip Desativado",
+                Content = "Você voltou a colidir normalmente.",
+                Duration = 3,
+                Icon = "ghost"
+            })
+        end
     end
 })
 
@@ -154,11 +253,7 @@ game:GetService("RunService").Stepped:Connect(function()
     if player.Character then
         for _, part in ipairs(player.Character:GetDescendants()) do
             if part:IsA("BasePart") then
-                if cfg.noclip then
-                    part.CanCollide = false
-                else
-                    part.CanCollide = true
-                end
+                part.CanCollide = not cfg.noclip
             end
         end
     end
@@ -168,5 +263,3 @@ end)
 -- ✅ Log final
 -- ================================================
 print("[✅ BatataHub] v3.2 carregado com sucesso! Última atualização: " .. os.date("%d/%m/%Y %H:%M:%S"))
-
-
